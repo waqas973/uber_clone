@@ -1,0 +1,15 @@
+// imports  helper
+@import "./1-helper/fonts";
+@import "./1-helper/variable";
+@import "./1-helper/common";
+@import "./1-helper/mixin";
+
+// imports modules
+
+@import "./2-modules/components/Navbar/Navbar";
+@import "./2-modules/components/LandingComponent/Banner";
+@import "./2-modules/components/LandingComponent/services";
+@import "./2-modules/components/LandingComponent/features";
+@import "./2-modules/components/Footer/Footer";
+@import "./2-modules/components/signup/Signup";
+@import "./2-modules/components/Modal/SignupModal";

@@ -1,0 +1,73 @@
+.navbar__transparent {
+  background: transparent !important;
+  z-index: 10;
+
+  @media screen and (min-width: 992px) {
+    height: 56px;
+  }
+
+  .navbar-brand {
+    @include font_style(1.5rem, bold, normal, uppercase);
+    color: $white;
+    &:hover {
+      color: $grey-300;
+    }
+  }
+  .navbar-toggler-icon {
+    color: $grey-50;
+  }
+
+  .navbar-toggler:focus {
+    outline: 0px !important;
+  }
+  .navbar-collapse {
+    .icon.close__icon {
+      color: $white;
+      display: block;
+      margin-left: auto;
+      cursor: pointer;
+      @media screen and (min-width: 992px) {
+        display: none;
+      }
+    }
+    // sidebar styles for mobile
+    @media screen and (max-width: 992px) {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      background: rgba(0, 0, 0, 0.6);
+      height: 100vh;
+      padding: 1rem;
+    }
+    @media screen and (max-width: 662px) {
+      width: 100%;
+    }
+  }
+
+  //   navbar nav
+  .navbar-nav {
+    margin-left: auto;
+    .nav-link {
+      @include font_style(1.1rem, 300, normal, capitalize);
+
+      color: $white;
+    }
+    .nav-item {
+      margin-bottom: 1rem;
+      @media screen and (min-width: 992px) {
+        margin-bottom: 0;
+        margin-right: 2rem;
+        &:last-child {
+          margin-right: 0rem;
+        }
+      }
+    }
+    .nav-item a {
+      &:hover {
+        color: $grey-300;
+        text-decoration: underline;
+      }
+    }
+  }
+}
