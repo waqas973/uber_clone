@@ -6,7 +6,7 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import "./scss/main.scss";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
-import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import swDev from "./swDev";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -15,4 +15,4 @@ root.render(
   </BrowserRouter>
 );
 
-serviceWorkerRegistration.register();
+swDev();
