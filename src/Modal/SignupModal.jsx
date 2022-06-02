@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import classNames from "classnames";
+import AutoCompleteSearch from "../components/Helper/AutoCompleteSearch";
 
 const SignupModal = ({ showModal, setShowModal, mode }) => {
+  const [cityKeyword, setCityKeyword] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [isApiCall, setIsApiCall] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -18,19 +23,44 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
       email: "",
       password: "",
     });
+    setCityKeyword("");
     setShowModal(false);
   };
 
   const onSubmit = data => {
-    reset({
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      email: "",
-      password: "",
-    });
-    setShowModal(false);
+    if (mode === "drive") {
+      if (selectedLocation) {
+        // reset({
+        //   firstName: "",
+        //   lastName: "",
+        //   phoneNumber: "",
+        //   email: "",
+        //   password: "",
+        // });
+        // setShowModal(false);
+        console.log(data);
+        console.log(selectedLocation);
+        setCityKeyword("");
+        setSelectedLocation("");
+      } else {
+        alert("Please select location");
+      }
+    } else {
+      reset({
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        email: "",
+        password: "",
+      });
+      setShowModal(false);
+    }
   };
+
+  // if user has selected location then set setCityKeyword
+  useEffect(() => {
+    setCityKeyword(selectedLocation);
+  }, [selectedLocation]);
 
   return (
     <div
@@ -126,6 +156,36 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                   </p>
                 )}
               </div>
+              {mode === "drive" && (
+                <div className="mb-4 position-relative">
+                  <label htmlFor="city" className="form-label">
+                    Enter your city
+                  </label>
+                  <input
+                    type="text"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.city,
+                    })}
+                    id="city"
+                    placeholder="City you'll be drive in"
+                    value={cityKeyword}
+                    autoComplete="off"
+                    onChange={e => {
+                      setCityKeyword(e.target.value);
+                      setSelectedLocation("");
+                      setIsApiCall(true);
+                    }}
+                  />
+
+                  <AutoCompleteSearch
+                    topstyle="100%"
+                    cityKeyword={cityKeyword}
+                    setSelectedLocation={setSelectedLocation}
+                    isApiCall={isApiCall}
+                    setIsApiCall={setIsApiCall}
+                  />
+                </div>
+              )}
               <div className="mb-4">
                 <label htmlFor="email" className="form-label">
                   Enter your email
@@ -148,30 +208,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                   <p className="invalid-feedback">{errors.email.message}</p>
                 )}
               </div>
-              {mode === "drive" && (
-                <div className="mb-4">
-                  <label htmlFor="city" className="form-label">
-                    Enter your city
-                  </label>
-                  <input
-                    type="text"
-                    className={classNames("form-control", {
-                      "is-invalid": errors.city,
-                    })}
-                    id="city"
-                    placeholder="City you'll be drive in"
-                    {...register("city", {
-                      required: {
-                        value: true,
-                        message: "This field is required",
-                      },
-                    })}
-                  />
-                  {errors.city && (
-                    <p className="invalid-feedback">{errors.city.message}</p>
-                  )}
-                </div>
-              )}
+
               <div className="mb-4">
                 <label htmlFor="password" className="form-label">
                   Enter password

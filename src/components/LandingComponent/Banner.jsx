@@ -1,9 +1,52 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { FaSignal, FaCar } from "react-icons/fa";
 import { MdGpsFixed } from "react-icons/md";
+import { toast } from "react-toastify";
+import AutoCompleteSearch from "../Helper/AutoCompleteSearch";
 
 const Banner = () => {
   const [activeMenu, setActiveMenu] = useState(0);
+  const [pickupKeyword, setPickupKeyword] = useState("");
+  const [destinationKeyword, setDestinationKeyword] = useState("");
+  const [selectedPickupLocation, setSelectedPickupLocation] = useState("");
+  const [selectedDestinationLocation, setSelectedDestinationLocation] =
+    useState("");
+  const [isApiCall, setIsApiCall] = useState(false);
+
+  // get current location
+  const getUserCurrentLocation = async () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          axios
+            .get(
+              `${process.env.REACT_APP_MAPBOX_BASE_URL}/geocoding/v5/mapbox.places/${position.coords.longitude},${position.coords.latitude}.json?country=pk&language=en&limit=1&access_token=${process.env.REACT_APP_MAPBOX_TOKEN}`
+            )
+            .then(res => {
+              setPickupKeyword(res.data.features[0].place_name);
+            })
+            .catch(() => {
+              toast.error("Something went wrong");
+            });
+        },
+        function (error) {
+          toast.error(error.message);
+        }
+      );
+    } else {
+      toast.error("Your device does not support geolocation.");
+    }
+  };
+
+  // if user has selected location then set setCityKeyword
+  useEffect(() => {
+    setPickupKeyword(selectedPickupLocation);
+  }, [selectedPickupLocation]);
+
+  useEffect(() => {
+    setDestinationKeyword(selectedDestinationLocation);
+  }, [selectedDestinationLocation]);
 
   return (
     <header className="hero hero__top">
@@ -12,7 +55,7 @@ const Banner = () => {
       <div className="card-wrapper  ">
         <div className="card">
           {/* card header */}
-          <div className="card-header d-flex justify-content-between align-items-center text-center  px-5 ">
+          <div className="card-header d-flex justify-content-between align-items-center text-center  ">
             <div
               style={{ cursor: "pointer" }}
               className={`px-2 ${activeMenu === 0 && "isActive"}`}
@@ -44,23 +87,54 @@ const Banner = () => {
               <div className="rider__container">
                 <h2>Get in the driver’s seat and get paid</h2>
                 <form className="py-4">
-                  <div className="form__control--wrapper d-flex justify-content-between align-items-center mb-2">
+                  <div className="form__control--wrapper d-flex justify-content-between align-items-center mb-2 position-relative">
                     <input
                       type="text"
                       className="form-input"
                       placeholder="Enter pickup location"
+                      value={pickupKeyword}
+                      autoComplete="off"
+                      onChange={e => {
+                        setPickupKeyword(e.target.value);
+                        setSelectedPickupLocation("");
+                        setIsApiCall(true);
+                      }}
                     />
                     <MdGpsFixed
                       className="icon"
                       title="My current location"
                       style={{ cursor: "pointer" }}
+                      onClick={getUserCurrentLocation}
+                    />
+                    {/* auto complete  */}
+                    <AutoCompleteSearch
+                      topstyle="100%"
+                      cityKeyword={pickupKeyword}
+                      setSelectedLocation={setSelectedPickupLocation}
+                      isApiCall={isApiCall}
+                      setIsApiCall={setIsApiCall}
                     />
                   </div>
-                  <div className="form__control--wrapper mb-2">
+                  <div className="form__control--wrapper mb-2 position-relative">
                     <input
                       type="text"
                       className="form-input"
                       placeholder="Enter destination"
+                      value={destinationKeyword}
+                      autoComplete="off"
+                      onChange={e => {
+                        setDestinationKeyword(e.target.value);
+                        setSelectedDestinationLocation("");
+                        setIsApiCall(true);
+                      }}
+                    />
+                    {/* auto complete  */}
+                    <AutoCompleteSearch
+                      topstyle="100%"
+                      cityKeyword={destinationKeyword}
+                      setSelectedLocation={setSelectedDestinationLocation}
+                      isApiCall={isApiCall}
+                      setIsApiCall={setIsApiCall}
                     />
                   </div>
                   <button className="btnn btnn__request">request now</button>

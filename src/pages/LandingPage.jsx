@@ -1,4 +1,5 @@
 import React from "react";
+import { ToastContainer } from "react-toastify";
 import Banner from "../components/LandingComponent/Banner";
 import Features from "../components/LandingComponent/Features";
 import Services from "../components/LandingComponent/Services";
@@ -15,6 +16,7 @@ const LandingPage = () => {
         {/* features */}
         <Features />
       </main>
+      <ToastContainer />
     </Layout>
   );
 };
