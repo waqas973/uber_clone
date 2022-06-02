@@ -14,9 +14,6 @@ const Navbar = () => {
         <button
           className={`navbar-toggler ${!showMenu && "collapsed"}`}
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
           aria-expanded={showMenu}
           aria-label="Toggle navigation"
           onClick={() => setShowMenu(!showMenu)}

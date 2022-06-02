@@ -4,6 +4,7 @@ import { FaSignal, FaCar } from "react-icons/fa";
 import { MdGpsFixed } from "react-icons/md";
 import { toast } from "react-toastify";
 import AutoCompleteSearch from "../Helper/AutoCompleteSearch";
+import LoaderWithBackground from "../loader/LoaderWithBackground";
 
 const Banner = () => {
   const [activeMenu, setActiveMenu] = useState(0);
@@ -12,11 +13,13 @@ const Banner = () => {
   const [selectedPickupLocation, setSelectedPickupLocation] = useState("");
   const [selectedDestinationLocation, setSelectedDestinationLocation] =
     useState("");
-  const [isApiCall, setIsApiCall] = useState(false);
-
+  const [isPickApiCall, setIsPickApiCall] = useState(false);
+  const [isDestinationApiCall, setIsDestinationApiCall] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // get current location
   const getUserCurrentLocation = async () => {
     if ("geolocation" in navigator) {
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         function (position) {
           axios
@@ -28,9 +31,13 @@ const Banner = () => {
             })
             .catch(() => {
               toast.error("Something went wrong");
+            })
+            .finally(() => {
+              setIsLoading(false);
             });
         },
         function (error) {
+          setIsLoading(false);
           toast.error(error.message);
         }
       );
@@ -97,7 +104,7 @@ const Banner = () => {
                       onChange={e => {
                         setPickupKeyword(e.target.value);
                         setSelectedPickupLocation("");
-                        setIsApiCall(true);
+                        setIsPickApiCall(true);
                       }}
                     />
                     <MdGpsFixed
@@ -111,8 +118,8 @@ const Banner = () => {
                       topstyle="100%"
                       cityKeyword={pickupKeyword}
                       setSelectedLocation={setSelectedPickupLocation}
-                      isApiCall={isApiCall}
-                      setIsApiCall={setIsApiCall}
+                      isApiCall={isPickApiCall}
+                      setIsApiCall={setIsPickApiCall}
                     />
                   </div>
                   <div className="form__control--wrapper mb-2 position-relative">
@@ -125,7 +132,7 @@ const Banner = () => {
                       onChange={e => {
                         setDestinationKeyword(e.target.value);
                         setSelectedDestinationLocation("");
-                        setIsApiCall(true);
+                        setIsDestinationApiCall(true);
                       }}
                     />
                     {/* auto complete  */}
@@ -133,8 +140,8 @@ const Banner = () => {
                       topstyle="100%"
                       cityKeyword={destinationKeyword}
                       setSelectedLocation={setSelectedDestinationLocation}
-                      isApiCall={isApiCall}
-                      setIsApiCall={setIsApiCall}
+                      isApiCall={isDestinationApiCall}
+                      setIsApiCall={setIsDestinationApiCall}
                     />
                   </div>
                   <button className="btnn btnn__request">request now</button>
@@ -144,6 +151,8 @@ const Banner = () => {
           </div>
         </div>
       </div>
+      {/* loading  */}
+      {isLoading && <LoaderWithBackground />}
     </header>
   );
 };
