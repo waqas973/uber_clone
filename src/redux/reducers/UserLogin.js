@@ -1,6 +1,6 @@
 const initState = {
   IsUserLogIn: false,
-  UserData: "",
+  userData: "",
 };
 
 const UserLogin = (state = initState, action) => {
@@ -9,7 +9,7 @@ const UserLogin = (state = initState, action) => {
       return {
         ...state,
         IsUserLogIn: true,
-        UserData: action.payload,
+        userData: action.payload,
       };
     }
 
@@ -17,7 +17,7 @@ const UserLogin = (state = initState, action) => {
       return {
         ...state,
         IsUserLogIn: false,
-        UserData: "",
+        userData: "",
       };
     }
     default:

@@ -2,11 +2,13 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import LoaderWithBackground from "./loader/LoaderWithBackground";
 
 const VerifyEmail = () => {
   const [inputCode, setInputCode] = useState("");
   const [error, setError] = useState("");
   const navigator = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   //   submit
   const handleSubmit = e => {
@@ -15,7 +17,7 @@ const VerifyEmail = () => {
       setError("Please enter a code");
     } else {
       setError("");
-
+      setIsLoading(true);
       axios
         .post(
           `${
@@ -41,6 +43,9 @@ const VerifyEmail = () => {
           } else {
             setError("Something went wrong");
           }
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
   };
@@ -92,6 +97,7 @@ const VerifyEmail = () => {
       </div>
       {/* toast container  */}
       <ToastContainer />
+      {isLoading && <LoaderWithBackground />}
     </main>
   );
 };

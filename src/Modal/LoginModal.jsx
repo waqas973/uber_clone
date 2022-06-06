@@ -6,7 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { actionMode } from "../redux/actions/Actions";
+import { actionMode, logInUserData } from "../redux/actions/Actions";
 
 const LoginModal = ({ showModal, setShowModal }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -47,8 +47,8 @@ const LoginModal = ({ showModal, setShowModal }) => {
         data
       )
       .then(res => {
-        console.log(res);
         localStorage.setItem("uber-demo-token", res.data.access);
+        dispatch(logInUserData(res.data));
         reset({
           email: "",
           password: "",
@@ -59,7 +59,7 @@ const LoginModal = ({ showModal, setShowModal }) => {
         if (err.response.data.detail) {
           toast.error(err.response.data.detail);
         } else {
-          toast.error("Something went wrong");
+          toast.error("Something went wrong or No user found");
         }
       })
       .finally(() => {
