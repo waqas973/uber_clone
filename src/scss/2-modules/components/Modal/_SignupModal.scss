@@ -15,8 +15,19 @@
       border: 1px solid $black-light;
     }
   }
+  .form-select {
+    padding: 0.6rem 0.6rem;
+    box-shadow: none;
+    border: 1px solid $black-light;
+    &:focus {
+      border: 1px solid $black-light;
+    }
+  }
   .is-invalid {
     border: 1px solid $red-dark;
+  }
+  .error__clr {
+    color: $red-dark;
   }
   .btnn__submit {
     @include font_style(1rem, 500, normal, capitalize);

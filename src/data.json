@@ -1,0 +1,19 @@
+{
+  "vehicle_type": [
+    {
+      "id": 1,
+      "text": "Uber Mini",
+      "value": "ubermini"
+    },
+    {
+      "id": 2,
+      "text": "Uber Auto",
+      "value": "uberauto"
+    },
+    {
+      "id": 3,
+      "text": "Uber Motor",
+      "value": "ubermoto"
+    }
+  ]
+}

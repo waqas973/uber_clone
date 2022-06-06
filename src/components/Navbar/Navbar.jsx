@@ -8,7 +8,7 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar__transparent ">
       <div className="container position-relative">
-        <Link className="navbar-brand " to="/#">
+        <Link className="navbar-brand " to="/">
           Uber
         </Link>
         <button
@@ -30,7 +30,7 @@ const Navbar = () => {
           />
           <ul className="navbar-nav  mb-2 mb-lg-0 ">
             <li className="nav-item">
-              <NavLink className="nav-link" to="/#">
+              <NavLink className="nav-link" to="/login">
                 Login
               </NavLink>
             </li>

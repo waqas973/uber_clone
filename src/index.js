@@ -8,12 +8,16 @@ import "./scss/main.scss";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import swDev from "./swDev";
+import { Provider } from "react-redux";
+import Store from "./redux/Store";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <Provider store={Store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>
 );
 
 swDev();

@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaSignal, FaCar } from "react-icons/fa";
 import { MdGpsFixed } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import AutoCompleteSearch from "../Helper/AutoCompleteSearch";
 import LoaderWithBackground from "../loader/LoaderWithBackground";
@@ -16,6 +17,8 @@ const Banner = () => {
   const [isPickApiCall, setIsPickApiCall] = useState(false);
   const [isDestinationApiCall, setIsDestinationApiCall] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigator = useNavigate();
+
   // get current location
   const getUserCurrentLocation = async () => {
     if ("geolocation" in navigator) {
@@ -88,7 +91,12 @@ const Banner = () => {
                   Drive on the platform with the largest network of active
                   riders.
                 </p>
-                <button className="btnn btnn__signup">sign up for drive</button>
+                <button
+                  className="btnn btnn__signup"
+                  onClick={() => navigator("/signup")}
+                >
+                  sign up for drive
+                </button>
               </div>
             ) : (
               <div className="rider__container">

@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { BsArrowRight } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import SignupModal from "../../Modal/SignupModal";
+import LoginModal from "../../Modal/LoginModal";
 
-const Signup = () => {
+const Login = () => {
   const navigator = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState("");
@@ -22,7 +22,7 @@ const Signup = () => {
               className="d-flex justify-content-center align-items-center  wrapper"
               onClick={() => handleClick("drive")}
             >
-              <h2>Sign up to drive</h2>
+              <h2>Login to drive</h2>
               <BsArrowRight className="icon arrow__icon" />
             </div>
           </div>
@@ -31,7 +31,7 @@ const Signup = () => {
               className="d-flex justify-content-center align-items-center  wrapper"
               onClick={() => handleClick("rider")}
             >
-              <h2>Create a rider account</h2>
+              <h2>Login to rider account </h2>
               <BsArrowRight className="icon arrow__icon" />
             </div>
           </div>
@@ -44,7 +44,7 @@ const Signup = () => {
         </div>
       </div>
 
-      <SignupModal
+      <LoginModal
         showModal={showModal}
         setShowModal={setShowModal}
         mode={mode}
@@ -54,4 +54,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;
