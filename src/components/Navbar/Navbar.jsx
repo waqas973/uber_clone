@@ -18,7 +18,9 @@ const Navbar = () => {
         {/* check it user login or not  */}
 
         {loginUser.IsUserLogIn === true ? (
-          <LoginUserSetting />
+          <LoginUserSetting
+            profile_pic={loginUser?.userData?.user_detail?.partner_photo}
+          />
         ) : (
           <button
             className={`navbar-toggler ${!showMenu && "collapsed"}`}

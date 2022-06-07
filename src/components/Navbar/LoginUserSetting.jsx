@@ -4,7 +4,8 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { logOut } from "../../redux/actions/Actions";
 
-const LoginUserSetting = () => {
+const LoginUserSetting = ({ profile_pic }) => {
+  console.log(profile_pic);
   const dispatch = useDispatch();
 
   // handle logout
@@ -22,13 +23,7 @@ const LoginUserSetting = () => {
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        <img
-          src={
-            "https://www.olx.com.pk/assets/iconProfilePicture.7975761176487dc62e25536d9a36a61d.png"
-          }
-          alt="avatar"
-          referrerPolicy="no-referrer"
-        />
+        <img src={profile_pic ? profile_pic : null} alt="avatar" />
         <BsChevronDown className="icon" />
       </div>
       <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">

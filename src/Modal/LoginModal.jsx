@@ -54,6 +54,7 @@ const LoginModal = ({ showModal, setShowModal }) => {
           password: "",
         });
         setShowModal(false);
+        navigator("/dashboard");
       })
       .catch(err => {
         if (err.response.data.detail) {

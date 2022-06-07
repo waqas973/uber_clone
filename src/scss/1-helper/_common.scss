@@ -126,11 +126,6 @@ body {
   color: $black;
 }
 
-// .dropdown.hide__dropdown {
-//   @media (min-width: 992px) {
-//     display: none;
-//   }
-// }
 // dropdown
 .dropdown-toggle::after {
   content: none;
@@ -162,6 +157,7 @@ body {
   box-shadow: rgba(10, 8, 8, 0.2) 0px 2px 8px 0px;
   padding: 1rem;
   overflow-x: auto;
+  z-index: 999 !important;
   // li
   li {
     padding: 0;
@@ -189,5 +185,15 @@ body {
   @media (min-width: 420px) {
     width: 19rem !important;
     left: -244px !important;
+  }
+}
+
+// map
+
+#map {
+  height: 40vh;
+
+  @media (min-width: 830px) {
+    height: 100vh;
   }
 }

@@ -11,6 +11,7 @@ import { actionMode, logInUserData } from "./redux/actions/Actions";
 import axiosInstance from "./axios/Axios";
 import { toast } from "react-toastify";
 import LoaderWithBackground from "./components/loader/LoaderWithBackground";
+import DashboardPage from "./pages/DashboardPage";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const App = () => {
       axiosInstance
         .get(`${process.env.REACT_APP_PROFILE_URL}`)
         .then(res => {
-          dispatch(logInUserData(res.data?.[0]));
+          dispatch(logInUserData(res.data));
         })
         .catch(err => {
           if (err.response.data.code === "token_not_valid") {
@@ -67,6 +68,7 @@ const App = () => {
           element={<ResendEmail />}
         />
         <Route path="/new-password" element={<NewPassword />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
       {/* loading  */}
       {isLoading && <LoaderWithBackground />}
