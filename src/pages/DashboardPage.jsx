@@ -4,6 +4,9 @@ import Layout from "../components/Layout";
 import L from "leaflet";
 import { useSelector } from "react-redux";
 import AddressPicker from "../components/Rider/AddressPicker";
+import { ToastContainer } from "react-toastify";
+import axiosInstance from "../axios/Axios";
+import RideList from "../components/driver/RideList";
 require("leaflet-routing-machine");
 
 const style = { width: "100%", zIndex: "2" };
@@ -27,8 +30,7 @@ const DashboardPage = () => {
       zoom: 13,
       layers: [
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }),
       ],
     });
@@ -79,9 +81,9 @@ const DashboardPage = () => {
     //   if (isUser && currentRide) {
     //     return <RideDetail user={currentRide.driver} isDriver={false} currentRide={currentRide} />
     //   }
-    //   if (!isUser && !currentRide) {
-    //     return <RideList />
-    //   }
+    if (!isUser && !currentRide) {
+      return <RideList />;
+    }
     //   if (!isUser && currentRide) {
     //     return <RideDetail user={currentRide.requestor} isDriver={true} currentRide={currentRide} />
     //   }
@@ -113,6 +115,15 @@ const DashboardPage = () => {
       const fromLatLng = new L.LatLng(from.y, from.x);
       const toLatLng = new L.LatLng(to.y, to.x);
       routeControl.current.setWaypoints([fromLatLng, toLatLng]);
+      let distance = fromLatLng.distanceTo(toLatLng) / 1000;
+
+      // distance.toFixed(2)
+      let pick = from.label;
+      let destination = to.label;
+      // axiosInstance
+      //   .post(`${process.env.REACT_APP_API_BASE_URL}/pick_drop/`, { pick, destination })
+      //   .then(res => console.log(res))
+      //   .catch(err => console.log(err));
     }
   }, []);
 
@@ -134,6 +145,7 @@ const DashboardPage = () => {
         <div id="map" style={style} />
         {renderSidebar()}
       </main>
+      <ToastContainer />
     </Layout>
   );
 };

@@ -2,8 +2,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaSignal, FaCar } from "react-icons/fa";
 import { MdGpsFixed } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { userSelectedLocations } from "../../redux/actions/Actions";
 import AutoCompleteSearch from "../Helper/AutoCompleteSearch";
 import LoaderWithBackground from "../loader/LoaderWithBackground";
 
@@ -12,12 +14,40 @@ const Banner = () => {
   const [pickupKeyword, setPickupKeyword] = useState("");
   const [destinationKeyword, setDestinationKeyword] = useState("");
   const [selectedPickupLocation, setSelectedPickupLocation] = useState("");
-  const [selectedDestinationLocation, setSelectedDestinationLocation] =
-    useState("");
+  const [selectedDestinationLocation, setSelectedDestinationLocation] = useState("");
+  const [selectedPickupLocationCoordinates, setSelectedPickupLocationCoordinates] = useState("");
+  const [selectedDestinationLocationCoordinates, setSelectedDestinationLocationCoordinates] = useState("");
   const [isPickApiCall, setIsPickApiCall] = useState(false);
   const [isDestinationApiCall, setIsDestinationApiCall] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigator = useNavigate();
+  const { IsUserLogIn } = useSelector(({ UserLogin }) => UserLogin);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const requestRideHander = () => {
+    if (!selectedPickupLocation || !selectedDestinationLocation) {
+      toast.error("Please select pickup and destination location from dropdown list");
+      return;
+    }
+    // navigate("/ride/request");
+    let pickupLocationData = {
+      label: selectedPickupLocation,
+      x: selectedPickupLocationCoordinates.x,
+      y: selectedPickupLocationCoordinates.y,
+    };
+    let destinationLocationData = {
+      label: selectedDestinationLocation,
+      x: selectedDestinationLocationCoordinates.x,
+      y: selectedDestinationLocationCoordinates.y,
+    };
+
+    dispatch(userSelectedLocations({ pickupLocationData, destinationLocationData }));
+    if (IsUserLogIn) {
+      navigate("/dashboard");
+    } else {
+      navigate("/login");
+    }
+  };
 
   // get current location
   const getUserCurrentLocation = async () => {
@@ -31,6 +61,10 @@ const Banner = () => {
             )
             .then(res => {
               setPickupKeyword(res.data.features[0].place_name);
+              setSelectedPickupLocation(res.data.features[0].place_name);
+              const x = res.data.features[0].center[0];
+              const y = res.data.features[0].center[1];
+              setSelectedPickupLocationCoordinates({ x, y });
             })
             .catch(() => {
               toast.error("Something went wrong");
@@ -87,14 +121,8 @@ const Banner = () => {
             {activeMenu === 0 ? (
               <div className="driver__container">
                 <h2>Get in the driver’s seat and get paid</h2>
-                <p className="my-4">
-                  Drive on the platform with the largest network of active
-                  riders.
-                </p>
-                <button
-                  className="btnn btnn__signup"
-                  onClick={() => navigator("/signup")}
-                >
+                <p className="my-4">Drive on the platform with the largest network of active riders.</p>
+                <button className="btnn btnn__signup" onClick={() => navigate("/signup")}>
                   sign up for drive
                 </button>
               </div>
@@ -112,6 +140,7 @@ const Banner = () => {
                       onChange={e => {
                         setPickupKeyword(e.target.value);
                         setSelectedPickupLocation("");
+                        setSelectedPickupLocationCoordinates("");
                         setIsPickApiCall(true);
                       }}
                     />
@@ -126,6 +155,7 @@ const Banner = () => {
                       topstyle="100%"
                       cityKeyword={pickupKeyword}
                       setSelectedLocation={setSelectedPickupLocation}
+                      setSelectedPickupLocationCoordinates={setSelectedPickupLocationCoordinates}
                       isApiCall={isPickApiCall}
                       setIsApiCall={setIsPickApiCall}
                     />
@@ -140,6 +170,7 @@ const Banner = () => {
                       onChange={e => {
                         setDestinationKeyword(e.target.value);
                         setSelectedDestinationLocation("");
+                        setSelectedDestinationLocationCoordinates("");
                         setIsDestinationApiCall(true);
                       }}
                     />
@@ -148,11 +179,14 @@ const Banner = () => {
                       topstyle="100%"
                       cityKeyword={destinationKeyword}
                       setSelectedLocation={setSelectedDestinationLocation}
+                      setSelectedDestinationLocationCoordinates={setSelectedDestinationLocationCoordinates}
                       isApiCall={isDestinationApiCall}
                       setIsApiCall={setIsDestinationApiCall}
                     />
                   </div>
-                  <button className="btnn btnn__request">request now</button>
+                  <button type="button" className="btnn btnn__request" onClick={requestRideHander}>
+                    request now
+                  </button>
                 </form>
               </div>
             )}

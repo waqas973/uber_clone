@@ -17,3 +17,10 @@ export const actionMode = data => {
     payload: data,
   };
 };
+
+export const userSelectedLocations = data => {
+  return {
+    type: "SELECTEDLOCATION",
+    payload: data,
+  };
+};

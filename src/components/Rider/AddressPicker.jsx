@@ -1,12 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
+import axios from "axios";
+import { toast } from "react-toastify";
+import LoaderWithBackground from "../loader/LoaderWithBackground";
+import { MdGpsFixed } from "react-icons/md";
+import { useSelector } from "react-redux";
+import ubermoto from "../../images/uber-vehicles/Uber_Moto_Orange.webp";
+import uberauto from "../../images/uber-vehicles/uberauto.png";
+import ubermini from "../../images/uber-vehicles/ubermini.webp";
 
 const AddressPicker = props => {
   const [isFrom, setIsFrom] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
   const provider = useRef();
   const searchRef = useRef();
+  const [isLoading, setIsLoading] = useState(false);
   const { selectedTo, setSelectedTo, selectedFrom, setSelectedFrom } = props;
+  const { pickupLocation, destinationLocaiton } = useSelector(({ SelectedLocation }) => SelectedLocation);
 
   /**
    * handle input changed to get pick up location or destination.
@@ -36,12 +46,7 @@ const AddressPicker = props => {
    */
 
   const onLocationSelected = selectedLocation => {
-    if (
-      selectedLocation &&
-      selectedLocation.label &&
-      selectedLocation.x &&
-      selectedLocation.y
-    ) {
+    if (selectedLocation && selectedLocation.label && selectedLocation.x && selectedLocation.y) {
       if (isFrom) {
         // set pick up location.
         setSelectedFrom(() => selectedLocation);
@@ -57,52 +62,97 @@ const AddressPicker = props => {
       searchRef.current.value = "";
     }
   };
+
+  // get current location
+  const getUserCurrentLocation = async () => {
+    if ("geolocation" in navigator) {
+      setIsLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          axios
+            .get(
+              `${process.env.REACT_APP_MAPBOX_BASE_URL}/geocoding/v5/mapbox.places/${position.coords.longitude},${position.coords.latitude}.json?country=pk&language=en&limit=1&access_token=${process.env.REACT_APP_MAPBOX_TOKEN}`
+            )
+            .then(res => {
+              const selectedLocation = {
+                label: res.data.features[0].place_name,
+                x: res.data.features[0].center[0],
+                y: res.data.features[0].center[1],
+              };
+              setIsFrom(false);
+              setSelectedFrom(() => selectedLocation);
+            })
+            .catch(() => {
+              toast.error("Something went wrong");
+            })
+            .finally(() => {
+              setIsLoading(false);
+            });
+        },
+        function (error) {
+          setIsLoading(false);
+          toast.error(error.message);
+        }
+      );
+    } else {
+      toast.error("Your device does not support geolocation.");
+    }
+  };
+
   // call initProvider(); on mount
   useEffect(() => {
     initProvider();
   }, []);
+
+  //  if user select a location. from landing page already  then run useEffect
+  useEffect(() => {
+    if (pickupLocation && destinationLocaiton) {
+      setSelectedFrom(() => pickupLocation);
+      setSelectedTo(() => destinationLocaiton);
+    }
+  }, [pickupLocation, destinationLocaiton]);
 
   return (
     <div className="address">
       <div className="address__title">
         <div className="address__title-container">
           <p className="address__title-from" onClick={() => setIsFrom(true)}>
-            {selectedFrom && selectedFrom.label
-              ? selectedFrom.label
-              : "Pickup location ?"}
+            {selectedFrom && selectedFrom.label ? selectedFrom.label : "Pickup location ?"}
           </p>
           <p className="address__title-to" onClick={() => setIsFrom(false)}>
-            {selectedTo && selectedTo.label
-              ? selectedTo.label
-              : "Destination ?"}
+            {selectedTo && selectedTo.label ? selectedTo.label : "Destination ?"}
           </p>
         </div>
       </div>
-      <div className="search">
+      <div className="search position-relative">
         <input
           className="search__input"
           type="text"
-          placeholder={
-            isFrom ? "Add a pickup location" : "Enter your destination"
-          }
+          placeholder={isFrom ? "Add a pickup location" : "Enter your destination"}
           onChange={onInputChanged}
           ref={searchRef}
         />
+        {isFrom && (
+          <MdGpsFixed
+            className="icon"
+            title="My current location"
+            style={{
+              cursor: "pointer",
+              position: "absolute",
+              top: "30px",
+              right: "20px",
+            }}
+            onClick={getUserCurrentLocation}
+          />
+        )}
+        {/* search location result  */}
         <div className="search__result">
           {searchResults &&
             searchResults.length !== 0 &&
             searchResults.map((result, index) => (
-              <div
-                className="search__result-item"
-                key={index}
-                onClick={() => onLocationSelected(result)}
-              >
+              <div className="search__result-item" key={index} onClick={() => onLocationSelected(result)}>
                 <div className="search__result-icon">
-                  <svg
-                    title="LocationMarkerFilled"
-                    viewBox="0 0 24 24"
-                    className="g2 ec db"
-                  >
+                  <svg title="LocationMarkerFilled" viewBox="0 0 24 24" className="g2 ec db">
                     <g transform="matrix( 1 0 0 1 2.524993896484375 1.0250244140625 )">
                       <path
                         fillRule="nonzero"
@@ -117,7 +167,68 @@ const AddressPicker = props => {
               </div>
             ))}
         </div>
+
+        {/* avaialble vehicles result */}
+        <div className="vehicle__result" style={{ display: "none" }}>
+          {/* single vehicle  */}
+          <div className="single__vehicle">
+            <img src={ubermoto} alt="uber moto" />
+            <div className="w-100" style={{ marginLeft: "1rem" }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <h5 className="vehicle__title">uber moto</h5>
+                <p>Rs 3000</p>
+              </div>
+              <div className="d-flex justify-content-between">
+                <p className="desc">easy and afforable</p>
+                <button className="btnn">request </button>
+              </div>
+            </div>
+          </div>
+          {/* single vehicle  */}
+          <div className="single__vehicle">
+            <img src={uberauto} alt="uber moto" />
+            <div className="w-100" style={{ marginLeft: "1rem" }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <h5 className="vehicle__title">uber auto</h5>
+                <p>Rs 3000</p>
+              </div>
+              <div className="d-flex justify-content-between">
+                <p className="desc">easy and afforable</p>
+                <button className="btnn">request </button>
+              </div>
+            </div>
+          </div>
+          {/* single vehicle  */}
+          <div className="single__vehicle">
+            <img src={ubermini} alt="uber moto" />
+            <div className="w-100" style={{ marginLeft: "1rem" }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <h5 className="vehicle__title">uber mini</h5>
+                <p>Rs 3000</p>
+              </div>
+              <div className="d-flex justify-content-between">
+                <p className="desc">easy and afforable</p>
+                <button className="btnn">request </button>
+              </div>
+            </div>
+          </div>
+          {/* single vehicle  */}
+          <div className="single__vehicle">
+            <img src={ubermini} alt="uber moto" />
+            <div className="w-100" style={{ marginLeft: "1rem" }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <h5 className="vehicle__title">uber mini</h5>
+                <p>Rs 3000</p>
+              </div>
+              <div className="d-flex justify-content-between">
+                <p className="desc">easy and afforable</p>
+                <button className="btnn">request </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      {isLoading && <LoaderWithBackground />}
     </div>
   );
 };

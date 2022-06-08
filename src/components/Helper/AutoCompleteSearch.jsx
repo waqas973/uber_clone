@@ -6,6 +6,8 @@ const AutoCompleteSearch = ({
   topstyle,
   cityKeyword,
   setSelectedLocation,
+  setSelectedPickupLocationCoordinates,
+  setSelectedDestinationLocationCoordinates,
   isApiCall,
   setIsApiCall,
 }) => {
@@ -13,6 +15,26 @@ const AutoCompleteSearch = ({
 
   // check if mouse it clicked outside of select location container or not
   const wrapperRef = useRef(null);
+
+  // user selected location function
+  const userSelectedLocation = city => {
+    let x = city.center[0];
+    let y = city.center[1];
+
+    // check if setSelectedPickupLocationCoordinates is pass as a props
+    if (setSelectedPickupLocationCoordinates) {
+      setSelectedPickupLocationCoordinates({ x, y });
+    }
+
+    // check if setSelectedDestinationLocationCoordinates is pass as a props
+    if (setSelectedDestinationLocationCoordinates) {
+      setSelectedDestinationLocationCoordinates({ x, y });
+    }
+
+    setSelectedLocation(city.place_name_en);
+    setCityData([]);
+    setIsApiCall(false);
+  };
 
   // call API in every keystroke
   useEffect(() => {
@@ -59,14 +81,7 @@ const AutoCompleteSearch = ({
       {cityData.length > 0 && (
         <ul>
           {cityData.map(city => (
-            <li
-              key={city.id}
-              onClick={() => {
-                setSelectedLocation(city.place_name_en);
-                setCityData([]);
-                setIsApiCall(false);
-              }}
-            >
+            <li key={city.id} onClick={() => userSelectedLocation(city)}>
               {city.place_name_en}
             </li>
           ))}

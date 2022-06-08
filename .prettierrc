@@ -3,7 +3,7 @@
   "semi": true,
   "htmlWhitespaceSensitivity": "css",
   "jsxSingleQuote": false,
-  "printWidth": 80,
+  "printWidth": 120,
   "tabWidth": 2,
   "trailingComma": "es5",
   "jsxBracketSameLine": false,

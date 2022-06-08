@@ -142,3 +142,42 @@
   height: 0.75rem;
   width: 0.75rem;
 }
+
+.vehicle__result {
+  height: 15rem;
+  overflow-y: auto;
+}
+.single__vehicle {
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 0.3rem;
+  &:hover {
+    background-color: whitesmoke;
+  }
+  img {
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+  }
+  .vehicle__title {
+    @include font_style(1.1rem, 500, 1.4rem, capitalize);
+    color: $black-light;
+    margin: 0;
+  }
+  p {
+    @include font_style(1.3rem, 500, 1.4rem, capitalize);
+    margin: 0;
+  }
+  .desc {
+    @include font_style(0.8rem, 300, 1.4rem, capitalize);
+    margin: 0;
+    color: $black-light;
+  }
+  button {
+    @include font_style(0.7rem, 500, 1.4rem, capitalize);
+    margin-left: auto;
+    display: block;
+    margin-top: 0.6rem;
+    padding: 0.2rem 0.5rem;
+  }
+}

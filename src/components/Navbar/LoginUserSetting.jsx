@@ -1,11 +1,11 @@
 import React from "react";
 import { BsChevronDown } from "react-icons/bs";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logOut } from "../../redux/actions/Actions";
 
 const LoginUserSetting = ({ profile_pic }) => {
-  console.log(profile_pic);
+  const navigator = useNavigate();
   const dispatch = useDispatch();
 
   // handle logout

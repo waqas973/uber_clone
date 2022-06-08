@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./components/Login/Login";
 import NewPassword from "./components/NewPassword";
 import ResendEmail from "./components/ResendEmail";
@@ -17,7 +17,7 @@ const App = () => {
   const dispatch = useDispatch();
   const action_Mode = useSelector(state => state.ActionMode.action_Mode);
   const navigator = useNavigate();
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true);
 
   // set mode into redux
   useEffect(() => {
@@ -41,34 +41,75 @@ const App = () => {
               navigator("/login");
             }, 3000);
           } else {
-            toast.error(
-              "Something went wrong, please try again or check your internet connection"
-            );
+            toast.error("Something went wrong, please try again or check your internet connection");
           }
         })
         .finally(() => {
           setLoading(false);
         });
     }
+    setLoading(false);
   }, [dispatch, navigator]);
 
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/login" element={<Login />} />
         <Route
-          path={
-            action_Mode && action_Mode === "forget-password"
-              ? "/forget-password"
-              : "/resend-email-code"
+          path="/"
+          element={
+            <ProtectedRoutes type="guest">
+              <LandingPage />
+            </ProtectedRoutes>
           }
-          element={<ResendEmail />}
         />
-        <Route path="/new-password" element={<NewPassword />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/signup"
+          element={
+            <ProtectedRoutes type="guest">
+              <Signup />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/verify-email"
+          element={
+            <ProtectedRoutes type="guest">
+              <VerifyEmail />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoutes type="guest">
+              <Login />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path={action_Mode && action_Mode === "forget-password" ? "/forget-password" : "/resend-email-code"}
+          element={
+            <ProtectedRoutes type="guest">
+              <ResendEmail />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/new-password"
+          element={
+            <ProtectedRoutes type="guest">
+              <NewPassword />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoutes type="private">
+              <DashboardPage />{" "}
+            </ProtectedRoutes>
+          }
+        />
       </Routes>
       {/* loading  */}
       {isLoading && <LoaderWithBackground />}
@@ -77,3 +118,14 @@ const App = () => {
 };
 
 export default App;
+
+//  PROTECTED ROUTES
+export const ProtectedRoutes = ({ children, type }) => {
+  const { IsUserLogIn } = useSelector(({ UserLogin }) => UserLogin);
+  let isAuthUser = IsUserLogIn || localStorage.getItem("uber-demo-token");
+
+  if (type === "guest" && isAuthUser) return <Navigate to="/dashboard" />;
+  else if (type === "private" && !isAuthUser) return <Navigate to="/login" />;
+
+  return children;
+};
