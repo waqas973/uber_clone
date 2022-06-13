@@ -4,9 +4,10 @@ import Layout from "../components/Layout";
 import L from "leaflet";
 import { useSelector } from "react-redux";
 import AddressPicker from "../components/Rider/AddressPicker";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import axiosInstance from "../axios/Axios";
 import RideList from "../components/driver/RideList";
+import LoaderWithBackground from "../components/loader/LoaderWithBackground";
 require("leaflet-routing-machine");
 
 const style = { width: "100%", zIndex: "2" };
@@ -14,6 +15,9 @@ const style = { width: "100%", zIndex: "2" };
 const DashboardPage = () => {
   const [selectedTo, setSelectedTo] = useState(null);
   const [selectedFrom, setSelectedFrom] = useState(null);
+  const [driverResult, setDriverResult] = useState(null);
+  const [selectedPointDistance, setSelectedPointDistance] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const map = useRef();
   const routeControl = useRef();
   const {
@@ -75,6 +79,9 @@ const DashboardPage = () => {
           setSelectedTo={setSelectedTo}
           selectedFrom={selectedFrom}
           setSelectedFrom={setSelectedFrom}
+          driverResult={driverResult}
+          setDriverResult={setDriverResult}
+          selectedPointDistance={selectedPointDistance}
         />
       );
     }
@@ -112,18 +119,27 @@ const DashboardPage = () => {
    */
   const drawRoute = useCallback((from, to) => {
     if (shouldRouteDrawed(from, to) && routeControl && routeControl.current) {
+      setIsLoading(true);
       const fromLatLng = new L.LatLng(from.y, from.x);
       const toLatLng = new L.LatLng(to.y, to.x);
       routeControl.current.setWaypoints([fromLatLng, toLatLng]);
       let distance = fromLatLng.distanceTo(toLatLng) / 1000;
 
-      // distance.toFixed(2)
       let pick = from.label;
       let destination = to.label;
-      // axiosInstance
-      //   .post(`${process.env.REACT_APP_API_BASE_URL}/pick_drop/`, { pick, destination })
-      //   .then(res => console.log(res))
-      //   .catch(err => console.log(err));
+
+      axiosInstance
+        .post(`${process.env.REACT_APP_API_BASE_URL}/pick_drop/`, { pick, destination })
+        .then(res => {
+          setDriverResult(res.data.drivers);
+          setSelectedPointDistance(distance.toFixed(2));
+        })
+        .catch(err => {
+          toast.error("Something went wrong, please try again later.");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   }, []);
 
@@ -146,6 +162,7 @@ const DashboardPage = () => {
         {renderSidebar()}
       </main>
       <ToastContainer />
+      {isLoading && <LoaderWithBackground />}
     </Layout>
   );
 };

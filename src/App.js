@@ -12,6 +12,7 @@ import axiosInstance from "./axios/Axios";
 import { toast } from "react-toastify";
 import LoaderWithBackground from "./components/loader/LoaderWithBackground";
 import DashboardPage from "./pages/DashboardPage";
+import { CometChat } from "@cometchat-pro/chat";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -50,6 +51,9 @@ const App = () => {
     }
     setLoading(false);
   }, [dispatch, navigator]);
+
+  // initalize cometchat
+  useEffect(() => {}, []);
 
   return (
     <div className="App">
@@ -112,7 +116,7 @@ const App = () => {
         />
       </Routes>
       {/* loading  */}
-      {isLoading && <LoaderWithBackground />}
+      {isLoading && <LoaderWithBackground isBgwhite />}
     </div>
   );
 };

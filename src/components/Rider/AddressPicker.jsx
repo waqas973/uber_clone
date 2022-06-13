@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import ubermoto from "../../images/uber-vehicles/Uber_Moto_Orange.webp";
 import uberauto from "../../images/uber-vehicles/uberauto.png";
 import ubermini from "../../images/uber-vehicles/ubermini.webp";
+import jsonData from "../../data.json";
 
 const AddressPicker = props => {
   const [isFrom, setIsFrom] = useState(true);
@@ -15,13 +16,23 @@ const AddressPicker = props => {
   const provider = useRef();
   const searchRef = useRef();
   const [isLoading, setIsLoading] = useState(false);
-  const { selectedTo, setSelectedTo, selectedFrom, setSelectedFrom } = props;
+  const {
+    selectedTo,
+    setSelectedTo,
+    selectedFrom,
+    setSelectedFrom,
+    driverResult,
+    setDriverResult,
+    selectedPointDistance,
+  } = props;
   const { pickupLocation, destinationLocaiton } = useSelector(({ SelectedLocation }) => SelectedLocation);
+  const { uberauto_price, ubermoto_price, ubermini_price } = jsonData;
 
   /**
    * handle input changed to get pick up location or destination.
    */
   const onInputChanged = e => {
+    setDriverResult(null);
     const input = e.target.value;
     provider.current.search({ query: input }).then(results => {
       setSearchResults(() => results);
@@ -99,6 +110,55 @@ const AddressPicker = props => {
     }
   };
 
+  /**
+   * check vehicle type and set icon and title
+   *
+   */
+  const vehicleType = type => {
+    let title = "";
+    let icon = "";
+    let price = 0;
+
+    switch (type) {
+      case "ubermini":
+        title = "Uber Mini";
+        icon = ubermini;
+        price = ubermini_price.price_per_km * parseInt(selectedPointDistance);
+        break;
+      case "ubermoto":
+        title = "Uber Moto";
+        icon = ubermoto;
+        price = ubermoto_price.price_per_km * parseInt(selectedPointDistance);
+
+        break;
+      case "uberauto":
+        title = "Uber Auto";
+        icon = uberauto;
+        price = uberauto_price.price_per_km * parseInt(selectedPointDistance);
+        break;
+      default:
+        title = "Uber Auto";
+        icon = uberauto;
+        price = uberauto_price.price_per_km * parseInt(selectedPointDistance);
+    }
+
+    return (
+      <>
+        <img src={icon} alt="uber moto" />
+        <div className="w-100" style={{ marginLeft: "1rem" }}>
+          <div className="d-flex align-items-center justify-content-between">
+            <h5 className="vehicle__title">{title}</h5>
+            <p>Rs {price.toFixed(2)}</p>
+          </div>
+          <div className="d-flex justify-content-between">
+            <p className="desc">easy and afforable</p>
+            <button className="btnn">request </button>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   // call initProvider(); on mount
   useEffect(() => {
     initProvider();
@@ -169,63 +229,18 @@ const AddressPicker = props => {
         </div>
 
         {/* avaialble vehicles result */}
-        <div className="vehicle__result" style={{ display: "none" }}>
-          {/* single vehicle  */}
-          <div className="single__vehicle">
-            <img src={ubermoto} alt="uber moto" />
-            <div className="w-100" style={{ marginLeft: "1rem" }}>
-              <div className="d-flex align-items-center justify-content-between">
-                <h5 className="vehicle__title">uber moto</h5>
-                <p>Rs 3000</p>
+
+        <div className="vehicle__result">
+          {driverResult !== null && driverResult.length === 0 ? (
+            <p>No available rides found please select different locations</p>
+          ) : (
+            driverResult !== null &&
+            driverResult.map(result => (
+              <div className="single__vehicle" key={result.id}>
+                {vehicleType(result.vehicle)}
               </div>
-              <div className="d-flex justify-content-between">
-                <p className="desc">easy and afforable</p>
-                <button className="btnn">request </button>
-              </div>
-            </div>
-          </div>
-          {/* single vehicle  */}
-          <div className="single__vehicle">
-            <img src={uberauto} alt="uber moto" />
-            <div className="w-100" style={{ marginLeft: "1rem" }}>
-              <div className="d-flex align-items-center justify-content-between">
-                <h5 className="vehicle__title">uber auto</h5>
-                <p>Rs 3000</p>
-              </div>
-              <div className="d-flex justify-content-between">
-                <p className="desc">easy and afforable</p>
-                <button className="btnn">request </button>
-              </div>
-            </div>
-          </div>
-          {/* single vehicle  */}
-          <div className="single__vehicle">
-            <img src={ubermini} alt="uber moto" />
-            <div className="w-100" style={{ marginLeft: "1rem" }}>
-              <div className="d-flex align-items-center justify-content-between">
-                <h5 className="vehicle__title">uber mini</h5>
-                <p>Rs 3000</p>
-              </div>
-              <div className="d-flex justify-content-between">
-                <p className="desc">easy and afforable</p>
-                <button className="btnn">request </button>
-              </div>
-            </div>
-          </div>
-          {/* single vehicle  */}
-          <div className="single__vehicle">
-            <img src={ubermini} alt="uber moto" />
-            <div className="w-100" style={{ marginLeft: "1rem" }}>
-              <div className="d-flex align-items-center justify-content-between">
-                <h5 className="vehicle__title">uber mini</h5>
-                <p>Rs 3000</p>
-              </div>
-              <div className="d-flex justify-content-between">
-                <p className="desc">easy and afforable</p>
-                <button className="btnn">request </button>
-              </div>
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </div>
       {isLoading && <LoaderWithBackground />}
