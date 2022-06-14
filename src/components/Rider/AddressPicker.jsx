@@ -9,6 +9,7 @@ import ubermoto from "../../images/uber-vehicles/Uber_Moto_Orange.webp";
 import uberauto from "../../images/uber-vehicles/uberauto.png";
 import ubermini from "../../images/uber-vehicles/ubermini.webp";
 import jsonData from "../../data.json";
+import axiosInstance from "../../axios/Axios";
 
 const AddressPicker = props => {
   const [isFrom, setIsFrom] = useState(true);
@@ -24,8 +25,11 @@ const AddressPicker = props => {
     driverResult,
     setDriverResult,
     selectedPointDistance,
+    setRideRequestData,
+    rideRequestData,
   } = props;
   const { pickupLocation, destinationLocaiton } = useSelector(({ SelectedLocation }) => SelectedLocation);
+  const { user_detail } = useSelector(({ UserLogin }) => UserLogin.userData);
   const { uberauto_price, ubermoto_price, ubermini_price } = jsonData;
 
   /**
@@ -111,10 +115,70 @@ const AddressPicker = props => {
   };
 
   /**
+   * request ride
+   */
+  const requestRide = driverid => {
+    if (
+      selectedFrom &&
+      selectedFrom.label &&
+      selectedFrom.x &&
+      selectedFrom.y &&
+      selectedTo &&
+      selectedTo.label &&
+      selectedTo.x &&
+      selectedTo.y
+    ) {
+      setIsLoading(true);
+      const data = {
+        destination_label: selectedTo.label,
+        pickup_label: selectedFrom.label,
+        destination_coordinates: `${selectedTo.x}, ${selectedTo.y}`,
+        pickup_coordinates: `${selectedFrom.x}, ${selectedFrom.y}`,
+        status: "0",
+        requester: user_detail.id,
+        deriver: driverid,
+      };
+      axiosInstance
+        .post(`${process.env.REACT_APP_API_BASE_URL}/rider_request/`, JSON.stringify(data))
+        .then(res => {
+          setRideRequestData(res.data.response);
+        })
+        .catch(err => {
+          toast.error("Something went wrong or check your internet connection!");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
+
+  /**
+   * cancel ride
+   *
+   */
+
+  const cancelRide = () => {
+    if (rideRequestData[0].id) {
+      setIsLoading(true);
+      axiosInstance
+        .get(`${process.env.REACT_APP_API_BASE_URL}/cancel_ride/${rideRequestData[0].id}/`)
+        .then(res => {
+          setRideRequestData(null);
+        })
+        .catch(err => {
+          toast.error("Something went wrong or check your internet connection!");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
+
+  /**
    * check vehicle type and set icon and title
    *
    */
-  const vehicleType = type => {
+  const vehicleType = (type, driverid) => {
     let title = "";
     let icon = "";
     let price = 0;
@@ -152,7 +216,9 @@ const AddressPicker = props => {
           </div>
           <div className="d-flex justify-content-between">
             <p className="desc">easy and afforable</p>
-            <button className="btnn">request </button>
+            <button className="btnn" onClick={() => requestRide(driverid)}>
+              request{" "}
+            </button>
           </div>
         </div>
       </>
@@ -172,6 +238,24 @@ const AddressPicker = props => {
     }
   }, [pickupLocation, destinationLocaiton]);
 
+  if (rideRequestData && user_detail.account_type === "rider") {
+    return (
+      <div className="ride-list">
+        <div className="ride-list__wrapper" style={{ width: "100%" }}>
+          <div className="ride-list__title">Ride Request Submitted</div>
+          <div style={{ height: "1px", backgroundColor: "black" }}></div>
+        </div>
+        <div className="ride-list__content">
+          <h3 className="ride-message">Wait for the driver to accept your ride request. </h3>
+          <div className="px-4">
+            <button className="btnn btnn__cancel" style={{ marginLeft: "auto" }} onClick={cancelRide}>
+              cancel ride
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="address">
       <div className="address__title">
@@ -237,7 +321,7 @@ const AddressPicker = props => {
             driverResult !== null &&
             driverResult.map(result => (
               <div className="single__vehicle" key={result.id}>
-                {vehicleType(result.vehicle)}
+                {vehicleType(result.vehicle, result.id)}
               </div>
             ))
           )}

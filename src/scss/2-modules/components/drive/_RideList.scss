@@ -91,3 +91,14 @@
 .empty-message {
   padding: 0.75rem;
 }
+.ride-message {
+  padding: 1rem 0.75rem;
+  @include font_style(1.1rem, 300, 1.4rem, unset);
+  color: $black-light;
+  letter-spacing: normal;
+}
+.btnn__cancel {
+  @include font_style(1.1rem, 300, 1.4rem, capitalize);
+  padding: 0.5rem;
+  display: block;
+}

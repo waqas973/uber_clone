@@ -18,6 +18,11 @@ const DashboardPage = () => {
   const [driverResult, setDriverResult] = useState(null);
   const [selectedPointDistance, setSelectedPointDistance] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [rideRequestData, setRideRequestData] = useState(null);
+  // created ride request.
+  const [rideRequest, setRideRequest] = useState(null);
+  // current ride.
+  const [currentRide, setCurrentRide] = useState(null);
   const map = useRef();
   const routeControl = useRef();
   const {
@@ -28,7 +33,8 @@ const DashboardPage = () => {
   /**
    * init leaflet map.
    */
-  const initMap = () => {
+
+  const initMap = useCallback(() => {
     map.current = L.map("map", {
       center: [31.582045, 74.329376],
       zoom: 13,
@@ -38,7 +44,7 @@ const DashboardPage = () => {
         }),
       ],
     });
-  };
+  }, []);
 
   /**
    * init route control.
@@ -70,7 +76,6 @@ const DashboardPage = () => {
    *
    */
   const renderSidebar = () => {
-    const currentRide = null;
     const isUser = IsUserLogIn === true && user_detail.account_type === "rider";
     if (isUser && !currentRide) {
       return (
@@ -82,6 +87,8 @@ const DashboardPage = () => {
           driverResult={driverResult}
           setDriverResult={setDriverResult}
           selectedPointDistance={selectedPointDistance}
+          rideRequestData={rideRequestData}
+          setRideRequestData={setRideRequestData}
         />
       );
     }
@@ -89,7 +96,7 @@ const DashboardPage = () => {
     //     return <RideDetail user={currentRide.driver} isDriver={false} currentRide={currentRide} />
     //   }
     if (!isUser && !currentRide) {
-      return <RideList />;
+      return <RideList rideRequest={rideRequest} />;
     }
     //   if (!isUser && currentRide) {
     //     return <RideDetail user={currentRide.requestor} isDriver={true} currentRide={currentRide} />
@@ -154,6 +161,30 @@ const DashboardPage = () => {
       drawRoute(selectedFrom, selectedTo);
     }
   }, [selectedFrom, selectedTo, drawRoute]);
+
+  /**
+   * 
+      check if rides are available for login driver 
+   *    
+   * 
+   */
+
+  useEffect(() => {
+    axiosInstance
+      .get(`${process.env.REACT_APP_API_BASE_URL}/requests/`)
+      .then(res => {
+        if (res.data.response.length > 0) {
+          setRideRequestData(res.data.response);
+          setRideRequest(res.data.response);
+        } else {
+          setRideRequestData(null);
+          setRideRequest(null);
+        }
+      })
+      .catch(err => {
+        toast.error("unable to fetch rides. please try again later.");
+      });
+  }, [rideRequestData]);
 
   return (
     <Layout>

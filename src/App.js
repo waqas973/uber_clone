@@ -50,7 +50,7 @@ const App = () => {
         });
     }
     setLoading(false);
-  }, [dispatch, navigator]);
+  }, []);
 
   // initalize cometchat
   useEffect(() => {}, []);
