@@ -1,7 +1,34 @@
 import React from "react";
+import { toast } from "react-toastify";
+import axiosInstance from "../../axios/Axios";
+import LoaderWithBackground from "../loader/LoaderWithBackground";
 
 const RideList = props => {
-  const { rideRequest } = props;
+  const { rideRequest, setCurrentRide, setRideRequestData } = props;
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  // /**
+  //  * accept ride
+  //  */
+  const acceptRide = async requestid => {
+    if (requestid) {
+      setIsLoading(true);
+      const data = { request_id: requestid, status: "1" };
+      axiosInstance
+        .post(`${process.env.REACT_APP_API_BASE_URL}/cancel_accept_ride/`, JSON.stringify(data))
+        .then(res => {
+          setRideRequestData(null);
+          localStorage.setItem("uber-demo-accepted-ride", JSON.stringify(res.data.response));
+          setCurrentRide(res.data.response);
+        })
+        .catch(err => {
+          toast.error("Something went wrong or check your internet connection!");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
 
   const renderRideList = () => {
     if (rideRequest && rideRequest.length !== 0) {
@@ -28,10 +55,7 @@ const RideList = props => {
               <span>To: </span>
               {request.destination_label ? request.destination_label : ""}
             </p>
-            <button
-              className="ride-list__accept-btn"
-              //  onClick={() => acceptRide(request)}
-            >
+            <button className="ride-list__accept-btn" onClick={() => acceptRide(request.id)}>
               Accept
             </button>
           </div>
@@ -49,6 +73,7 @@ const RideList = props => {
         <div></div>
       </div>
       <div className="ride-list__content">{renderRideList()}</div>
+      {isLoading && <LoaderWithBackground />}
     </div>
   );
 };

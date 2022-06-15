@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axiosInstance from "../axios/Axios";
 import RideList from "../components/driver/RideList";
 import LoaderWithBackground from "../components/loader/LoaderWithBackground";
+import RideDetail from "../components/RideDetail";
 require("leaflet-routing-machine");
 
 const style = { width: "100%", zIndex: "2" };
@@ -29,6 +30,14 @@ const DashboardPage = () => {
     IsUserLogIn,
     userData: { user_detail },
   } = useSelector(({ UserLogin }) => UserLogin);
+
+  const currentAcceptedRide = localStorage.getItem("uber-demo-accepted-ride");
+
+  useEffect(() => {
+    if (currentAcceptedRide) {
+      setCurrentRide(JSON.parse(currentAcceptedRide));
+    }
+  }, [currentAcceptedRide]);
 
   /**
    * init leaflet map.
@@ -77,6 +86,7 @@ const DashboardPage = () => {
    */
   const renderSidebar = () => {
     const isUser = IsUserLogIn === true && user_detail.account_type === "rider";
+
     if (isUser && !currentRide) {
       return (
         <AddressPicker
@@ -92,15 +102,17 @@ const DashboardPage = () => {
         />
       );
     }
-    //   if (isUser && currentRide) {
-    //     return <RideDetail user={currentRide.driver} isDriver={false} currentRide={currentRide} />
-    //   }
-    if (!isUser && !currentRide) {
-      return <RideList rideRequest={rideRequest} />;
+    if (isUser && currentRide) {
+      return <RideDetail user={currentRide.deriver} isDriver={false} currentRide={currentRide} />;
     }
-    //   if (!isUser && currentRide) {
-    //     return <RideDetail user={currentRide.requestor} isDriver={true} currentRide={currentRide} />
-    //   }
+    if (!isUser && !currentRide) {
+      return (
+        <RideList rideRequest={rideRequest} setCurrentRide={setCurrentRide} setRideRequestData={setRideRequestData} />
+      );
+    }
+    if (!isUser && currentRide) {
+      return <RideDetail user={currentRide.requester} isDriver={true} currentRide={currentRide} />;
+    }
   };
 
   /**
@@ -170,22 +182,26 @@ const DashboardPage = () => {
    */
 
   useEffect(() => {
-    axiosInstance
-      .get(`${process.env.REACT_APP_API_BASE_URL}/requests/`)
-      .then(res => {
-        if (res.data.response.length > 0) {
-          setRideRequestData(res.data.response);
-          setRideRequest(res.data.response);
-        } else {
-          setRideRequestData(null);
-          setRideRequest(null);
-        }
-      })
-      .catch(err => {
-        toast.error("unable to fetch rides. please try again later.");
-      });
-  }, [rideRequestData]);
-
+    const requests = async () => {
+      axiosInstance
+        .get(`${process.env.REACT_APP_API_BASE_URL}/requests/`)
+        .then(res => {
+          if (res.data.response.length > 0) {
+            setRideRequestData(res.data.response);
+            setRideRequest(res.data.response);
+          } else {
+            setRideRequestData(null);
+            setRideRequest(null);
+          }
+        })
+        .catch(err => {
+          toast.error("unable to fetch rides. please try again later.");
+        });
+    };
+    requests();
+  }, []);
+  console.log(rideRequestData);
+  console.log(rideRequest);
   return (
     <Layout>
       <main>

@@ -117,7 +117,7 @@ const AddressPicker = props => {
   /**
    * request ride
    */
-  const requestRide = driverid => {
+  const requestRide = async driverid => {
     if (
       selectedFrom &&
       selectedFrom.label &&
@@ -157,11 +157,12 @@ const AddressPicker = props => {
    *
    */
 
-  const cancelRide = () => {
+  const cancelRide = async () => {
     if (rideRequestData[0].id) {
       setIsLoading(true);
+      const data = { request_id: rideRequestData[0].id, status: "0" };
       axiosInstance
-        .get(`${process.env.REACT_APP_API_BASE_URL}/cancel_ride/${rideRequestData[0].id}/`)
+        .post(`${process.env.REACT_APP_API_BASE_URL}/cancel_accept_ride/`, JSON.stringify(data))
         .then(res => {
           setRideRequestData(null);
         })
