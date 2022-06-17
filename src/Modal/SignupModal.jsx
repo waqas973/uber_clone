@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import classNames from "classnames";
-import AutoCompleteSearch from "../components/Helper/AutoCompleteSearch";
+import AutoCompleteCities from "../components/Helper/AutoCompleteCities";
 import JsonData from "../data.json";
 import axios from "axios";
 import { toast } from "react-toastify";
 import LoaderWithBackground from "../components/loader/LoaderWithBackground";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const SignupModal = ({ showModal, setShowModal, mode }) => {
   const [cityKeyword, setCityKeyword] = useState("");
@@ -23,6 +24,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
   const [cityError, setCityError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigator = useNavigate();
+  const { cometChat } = useSelector(({ CometChat }) => CometChat);
 
   // close modal
   const closeModal = () => {
@@ -45,7 +47,6 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
   // handle submit data to api
   const onSubmit = data => {
     setCityError(false);
-    setIsLoading(true);
 
     if (mode === "drive") {
       if (selectedLocation) {
@@ -69,15 +70,13 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
    */
 
   const submitFormData = data => {
+    setIsLoading(true);
+
     const formData = new FormData();
 
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
-        if (
-          key !== "partner_photo" &&
-          key !== "vehicle_registration_book" &&
-          key !== "driving_licence_front_side"
-        ) {
+        if (key !== "partner_photo" && key !== "vehicle_registration_book" && key !== "driving_licence_front_side") {
           formData.append(key, data[key]);
         }
       }
@@ -88,26 +87,15 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
     }
 
     if (data.vehicle_registration_book?.[0]) {
-      formData.append(
-        "vehicle_registration_book",
-        data?.vehicle_registration_book?.[0]
-      );
+      formData.append("vehicle_registration_book", data?.vehicle_registration_book?.[0]);
     }
 
     if (data.driving_licence_front_side?.[0]) {
-      formData.append(
-        "driving_licence_front_side",
-        data?.driving_licence_front_side?.[0]
-      );
+      formData.append("driving_licence_front_side", data?.driving_licence_front_side?.[0]);
     }
 
     axios
-      .post(
-        `${
-          process.env.REACT_APP_API_BASE_URL + process.env.REACT_APP_SIGNUP_URL
-        } `,
-        formData
-      )
+      .post(`${process.env.REACT_APP_API_BASE_URL + process.env.REACT_APP_SIGNUP_URL} `, formData)
       .then(res => {
         reset({
           first_name: "",
@@ -122,18 +110,35 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
         });
         setCityKeyword("");
         setSelectedLocation("");
-        setShowModal(false);
-        navigator("/verify-email");
+        // cometchat auth key
+        const authKey = `${process.env.REACT_APP_COMETCHAT_AUTH_KEY}`;
+
+        const userUid = res.data.first_name + res.data.id;
+
+        // call cometchat service to register a new account.
+        const user = new cometChat.User(userUid);
+        user.setName(res.data.email);
+        user.setAvatar(res.data.partner_photo);
+
+        cometChat.createUser(user, authKey).then(
+          user => {
+            setIsLoading(false);
+            setShowModal(false);
+            navigator("/verify-email");
+          },
+          error => {
+            setIsLoading(false);
+            toast.error("unable to create connection with CometChat!");
+          }
+        );
       })
       .catch(err => {
+        setIsLoading(false);
         if (err.response.data.email.length > 0) {
           toast.error(err.response.data.email[0]);
         } else {
           toast.error("Something went wrong try later!");
         }
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
   };
 
@@ -158,11 +163,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
             <h5 className="modal-title" id="staticBackdropLabel">
               Signup for uber
             </h5>
-            <button
-              type="button"
-              className="btn-close"
-              onClick={closeModal}
-            ></button>
+            <button type="button" className="btn-close" onClick={closeModal}></button>
           </div>
 
           <div className="modal-body">
@@ -187,11 +188,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                     },
                   })}
                 />
-                {errors.first_name && (
-                  <p className="invalid-feedback">
-                    {errors.first_name.message}
-                  </p>
-                )}
+                {errors.first_name && <p className="invalid-feedback">{errors.first_name.message}</p>}
               </div>
               {/* last name  */}
               <div className="mb-4">
@@ -212,9 +209,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                     },
                   })}
                 />
-                {errors.last_name && (
-                  <p className="invalid-feedback">{errors.last_name.message}</p>
-                )}
+                {errors.last_name && <p className="invalid-feedback">{errors.last_name.message}</p>}
               </div>
 
               {/* email  */}
@@ -236,9 +231,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                     },
                   })}
                 />
-                {errors.email && (
-                  <p className="invalid-feedback">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="invalid-feedback">{errors.email.message}</p>}
               </div>
               {/* phone number */}
               <div className="mb-4">
@@ -259,11 +252,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                     },
                   })}
                 />
-                {errors.phone_number && (
-                  <p className="invalid-feedback">
-                    {errors.phone_number.message}
-                  </p>
-                )}
+                {errors.phone_number && <p className="invalid-feedback">{errors.phone_number.message}</p>}
               </div>
               {/* profile picture */}
               <div className="mb-4">
@@ -283,11 +272,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                     },
                   })}
                 />
-                {errors.partner_photo && (
-                  <p className="invalid-feedback">
-                    {errors.partner_photo.message}
-                  </p>
-                )}
+                {errors.partner_photo && <p className="invalid-feedback">{errors.partner_photo.message}</p>}
               </div>
               {/*  user is driver  */}
               {mode === "drive" && (
@@ -314,18 +299,14 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                       }}
                     />
 
-                    <AutoCompleteSearch
+                    <AutoCompleteCities
                       topstyle="100%"
                       cityKeyword={cityKeyword}
                       setSelectedLocation={setSelectedLocation}
                       isApiCall={isApiCall}
                       setIsApiCall={setIsApiCall}
                     />
-                    {cityError && (
-                      <p className="error__clr">
-                        Please select city from the suggestion list
-                      </p>
-                    )}
+                    {cityError && <p className="error__clr">Please select city from the suggestion list</p>}
                   </div>
                   {/* vehicle type  */}
                   <div className="mb-4">
@@ -349,18 +330,11 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                         </option>
                       ))}
                     </select>
-                    {errors.vehicle && (
-                      <p className="invalid-feedback">
-                        {errors.vehicle.message}
-                      </p>
-                    )}
+                    {errors.vehicle && <p className="invalid-feedback">{errors.vehicle.message}</p>}
                   </div>
                   {/* vehicle registration book  */}
                   <div className="mb-4">
-                    <label
-                      htmlFor="vehicle_registration_book"
-                      className="form-label"
-                    >
+                    <label htmlFor="vehicle_registration_book" className="form-label">
                       Vehicle Registration Book Image
                     </label>
                     <input
@@ -377,17 +351,12 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                       })}
                     />
                     {errors.vehicle_registration_book && (
-                      <p className="invalid-feedback">
-                        {errors.vehicle_registration_book.message}
-                      </p>
+                      <p className="invalid-feedback">{errors.vehicle_registration_book.message}</p>
                     )}
                   </div>
                   {/* driving license image  */}
                   <div className="mb-4">
-                    <label
-                      htmlFor="driving_licence_front_side"
-                      className="form-label"
-                    >
+                    <label htmlFor="driving_licence_front_side" className="form-label">
                       Driving Licence Image ( front side )
                     </label>
                     <input
@@ -404,9 +373,7 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                       })}
                     />
                     {errors.driving_licence_front_side && (
-                      <p className="invalid-feedback">
-                        {errors.driving_licence_front_side.message}
-                      </p>
+                      <p className="invalid-feedback">{errors.driving_licence_front_side.message}</p>
                     )}
                   </div>
                 </>
@@ -429,16 +396,13 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
                       message: "This field is required",
                     },
                     pattern: {
-                      value:
-                        /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#%&])(?=.{8,})/,
+                      value: /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#%&])(?=.{8,})/,
                       message:
                         "Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character",
                     },
                   })}
                 />
-                {errors.password && (
-                  <p className="invalid-feedback"> {errors.password.message}</p>
-                )}
+                {errors.password && <p className="invalid-feedback"> {errors.password.message}</p>}
               </div>
               <div className="mb-4 text-end">
                 <button type="submit" className="btnn btnn__submit">

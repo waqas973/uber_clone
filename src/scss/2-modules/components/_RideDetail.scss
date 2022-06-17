@@ -1,11 +1,14 @@
 .ride-detail {
   background-color: rgb(255, 255, 255);
-  height: 32.0625rem;
-  left: 2%;
-  position: fixed;
-  top: 13%;
-  width: 25rem;
-  z-index: 999;
+  height: 35.0625rem;
+  @media (min-width: 830px) {
+    height: 32.0625rem;
+    left: 5%;
+    position: absolute;
+    top: 13%;
+    width: 25rem;
+    z-index: 999;
+  }
 }
 
 .ride-detail__user-avatar {

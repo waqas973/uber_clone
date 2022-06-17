@@ -27,14 +27,15 @@ const AddressPicker = props => {
     selectedPointDistance,
     setRideRequestData,
     rideRequestData,
+    setCurrentRide,
   } = props;
   const { pickupLocation, destinationLocaiton } = useSelector(({ SelectedLocation }) => SelectedLocation);
   const { user_detail } = useSelector(({ UserLogin }) => UserLogin.userData);
   const { uberauto_price, ubermoto_price, ubermini_price } = jsonData;
 
-  /**
-   * handle input changed to get pick up location or destination.
-   */
+  // /**
+  //  * handle input changed to get pick up location or destination.
+  //  */
   const onInputChanged = e => {
     setDriverResult(null);
     const input = e.target.value;
@@ -158,13 +159,20 @@ const AddressPicker = props => {
    */
 
   const cancelRide = async () => {
-    if (rideRequestData[0].id) {
+    let requestid = "";
+    if (rideRequestData[0]) {
+      requestid = rideRequestData[0].id;
+    } else {
+      requestid = rideRequestData.id;
+    }
+    if (requestid) {
       setIsLoading(true);
-      const data = { request_id: rideRequestData[0].id, status: "0" };
+      const data = { request_id: requestid, status: "0" };
       axiosInstance
         .post(`${process.env.REACT_APP_API_BASE_URL}/cancel_accept_ride/`, JSON.stringify(data))
         .then(res => {
           setRideRequestData(null);
+          setCurrentRide(null);
         })
         .catch(err => {
           toast.error("Something went wrong or check your internet connection!");
@@ -328,6 +336,7 @@ const AddressPicker = props => {
           )}
         </div>
       </div>
+
       {isLoading && <LoaderWithBackground />}
     </div>
   );

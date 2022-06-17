@@ -73,11 +73,7 @@ const AutoCompleteSearch = ({
   }, [wrapperRef]);
 
   return (
-    <div
-      className="autoComplete__search"
-      style={{ top: topstyle }}
-      ref={wrapperRef}
-    >
+    <div className="autoComplete__search" style={{ top: topstyle }} ref={wrapperRef}>
       {cityData.length > 0 && (
         <ul>
           {cityData.map(city => (

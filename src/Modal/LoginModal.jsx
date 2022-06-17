@@ -5,13 +5,15 @@ import LoaderWithBackground from "../components/loader/LoaderWithBackground";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { actionMode, logInUserData } from "../redux/actions/Actions";
 
 const LoginModal = ({ showModal, setShowModal }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigator = useNavigate();
   const dispatch = useDispatch();
+  const { cometChat } = useSelector(({ CometChat }) => CometChat);
+
   const {
     register,
     handleSubmit,
@@ -40,12 +42,7 @@ const LoginModal = ({ showModal, setShowModal }) => {
   const onSubmit = data => {
     setIsLoading(true);
     axios
-      .post(
-        `${
-          process.env.REACT_APP_API_BASE_URL + process.env.REACT_APP_LOGIN_URL
-        }`,
-        data
-      )
+      .post(`${process.env.REACT_APP_API_BASE_URL + process.env.REACT_APP_LOGIN_URL}`, data)
       .then(res => {
         localStorage.setItem("uber-demo-token", res.data.access);
         dispatch(logInUserData(res.data));
@@ -53,18 +50,29 @@ const LoginModal = ({ showModal, setShowModal }) => {
           email: "",
           password: "",
         });
-        setShowModal(false);
-        navigator("/dashboard");
+        const userUid = res.data.user_detail.first_name + res.data.user_detail.id;
+
+        // login cometchat.
+        cometChat.login(userUid, `${process.env.REACT_APP_COMETCHAT_AUTH_KEY}`).then(
+          User => {
+            setIsLoading(false);
+            setShowModal(false);
+            navigator("/dashboard");
+          },
+          error => {
+            setIsLoading(false);
+            toast.error("unable to login into cometchat");
+            // User login failed, check error and take appropriate action.
+          }
+        );
       })
       .catch(err => {
+        setIsLoading(false);
         if (err.response.data.detail) {
           toast.error(err.response.data.detail);
         } else {
           toast.error("Something went wrong or No user found");
         }
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
   };
 
@@ -91,11 +99,7 @@ const LoginModal = ({ showModal, setShowModal }) => {
             <h5 className="modal-title" id="staticBackdropLabel">
               Login for uber
             </h5>
-            <button
-              type="button"
-              className="btn-close"
-              onClick={closeModal}
-            ></button>
+            <button type="button" className="btn-close" onClick={closeModal}></button>
           </div>
 
           <div className="modal-body">
@@ -120,9 +124,7 @@ const LoginModal = ({ showModal, setShowModal }) => {
                     },
                   })}
                 />
-                {errors.email && (
-                  <p className="invalid-feedback">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="invalid-feedback">{errors.email.message}</p>}
               </div>
               {/* password  */}
               <div className="mb-4">
@@ -145,18 +147,12 @@ const LoginModal = ({ showModal, setShowModal }) => {
                 />
                 {/* forget password  */}
                 <div className=" text-end">
-                  <button
-                    type="button"
-                    style={btnStyle}
-                    onClick={() => handleNavigate("forget-password")}
-                  >
+                  <button type="button" style={btnStyle} onClick={() => handleNavigate("forget-password")}>
                     forget password?
                   </button>
                 </div>
 
-                {errors.password && (
-                  <p className="invalid-feedback"> {errors.password.message}</p>
-                )}
+                {errors.password && <p className="invalid-feedback"> {errors.password.message}</p>}
               </div>
               <div className="mb-4 text-end">
                 <button type="submit" className="btnn btnn__submit">
@@ -181,11 +177,7 @@ const LoginModal = ({ showModal, setShowModal }) => {
               </h4>
             </div>
             <div className="text-center">
-              <button
-                type="button"
-                style={btnStyle}
-                onClick={() => handleNavigate("resend-email-code")}
-              >
+              <button type="button" style={btnStyle} onClick={() => handleNavigate("resend-email-code")}>
                 Verify Email
               </button>
             </div>

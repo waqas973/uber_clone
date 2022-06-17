@@ -31,14 +31,6 @@ const DashboardPage = () => {
     userData: { user_detail },
   } = useSelector(({ UserLogin }) => UserLogin);
 
-  const currentAcceptedRide = localStorage.getItem("uber-demo-accepted-ride");
-
-  useEffect(() => {
-    if (currentAcceptedRide) {
-      setCurrentRide(JSON.parse(currentAcceptedRide));
-    }
-  }, [currentAcceptedRide]);
-
   /**
    * init leaflet map.
    */
@@ -99,11 +91,20 @@ const DashboardPage = () => {
           selectedPointDistance={selectedPointDistance}
           rideRequestData={rideRequestData}
           setRideRequestData={setRideRequestData}
+          setCurrentRide={setCurrentRide}
         />
       );
     }
     if (isUser && currentRide) {
-      return <RideDetail user={currentRide.deriver} isDriver={false} currentRide={currentRide} />;
+      return (
+        <RideDetail
+          user={currentRide.deriver}
+          isDriver={false}
+          currentRide={currentRide}
+          setRideRequestData={setRideRequestData}
+          setCurrentRide={setCurrentRide}
+        />
+      );
     }
     if (!isUser && !currentRide) {
       return (
@@ -111,7 +112,16 @@ const DashboardPage = () => {
       );
     }
     if (!isUser && currentRide) {
-      return <RideDetail user={currentRide.requester} isDriver={true} currentRide={currentRide} />;
+      return (
+        <RideDetail
+          user={currentRide.requester}
+          isDriver={true}
+          currentRide={currentRide}
+          setRideRequestData={setRideRequestData}
+          setCurrentRide={setCurrentRide}
+          setRideRequest={setRideRequest}
+        />
+      );
     }
   };
 
@@ -194,14 +204,34 @@ const DashboardPage = () => {
             setRideRequest(null);
           }
         })
-        .catch(err => {
+        .catch(() => {
           toast.error("unable to fetch rides. please try again later.");
         });
     };
     requests();
   }, []);
-  console.log(rideRequestData);
-  console.log(rideRequest);
+
+  // check for accepted ride
+  useEffect(() => {
+    if (user_detail) {
+      const requests = async () => {
+        axiosInstance
+          .get(`${process.env.REACT_APP_API_BASE_URL}/accepted_rides/${user_detail.id}/`)
+          .then(res => {
+            if (res.data.response.length > 0) {
+              setCurrentRide(res.data.response[0]);
+            } else {
+              setCurrentRide(null);
+            }
+          })
+          .catch(() => {
+            toast.error("unable to fetch rides. please try again later.");
+          });
+      };
+      requests();
+    }
+  }, [user_detail]);
+
   return (
     <Layout>
       <main>
