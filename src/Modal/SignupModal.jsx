@@ -7,7 +7,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import LoaderWithBackground from "../components/loader/LoaderWithBackground";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 const SignupModal = ({ showModal, setShowModal, mode }) => {
   const [cityKeyword, setCityKeyword] = useState("");
@@ -24,7 +23,6 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
   const [cityError, setCityError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigator = useNavigate();
-  const { cometChat } = useSelector(({ CometChat }) => CometChat);
 
   // close modal
   const closeModal = () => {
@@ -110,27 +108,9 @@ const SignupModal = ({ showModal, setShowModal, mode }) => {
         });
         setCityKeyword("");
         setSelectedLocation("");
-        // cometchat auth key
-        const authKey = `${process.env.REACT_APP_COMETCHAT_AUTH_KEY}`;
-
-        const userUid = res.data.first_name + res.data.id;
-
-        // call cometchat service to register a new account.
-        const user = new cometChat.User(userUid);
-        user.setName(res.data.email);
-        user.setAvatar(res.data.partner_photo);
-
-        cometChat.createUser(user, authKey).then(
-          user => {
-            setIsLoading(false);
-            setShowModal(false);
-            navigator("/verify-email");
-          },
-          error => {
-            setIsLoading(false);
-            toast.error("unable to create connection with CometChat!");
-          }
-        );
+        setIsLoading(false);
+        setShowModal(false);
+        navigator("/verify-email");
       })
       .catch(err => {
         setIsLoading(false);

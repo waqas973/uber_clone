@@ -5,14 +5,13 @@ import LoaderWithBackground from "../components/loader/LoaderWithBackground";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { actionMode, logInUserData } from "../redux/actions/Actions";
 
 const LoginModal = ({ showModal, setShowModal }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigator = useNavigate();
   const dispatch = useDispatch();
-  const { cometChat } = useSelector(({ CometChat }) => CometChat);
 
   const {
     register,
@@ -50,21 +49,10 @@ const LoginModal = ({ showModal, setShowModal }) => {
           email: "",
           password: "",
         });
-        const userUid = res.data.user_detail.first_name + res.data.user_detail.id;
 
-        // login cometchat.
-        cometChat.login(userUid, `${process.env.REACT_APP_COMETCHAT_AUTH_KEY}`).then(
-          User => {
-            setIsLoading(false);
-            setShowModal(false);
-            navigator("/dashboard");
-          },
-          error => {
-            setIsLoading(false);
-            toast.error("unable to login into cometchat");
-            // User login failed, check error and take appropriate action.
-          }
-        );
+        setIsLoading(false);
+        setShowModal(false);
+        navigator("/dashboard");
       })
       .catch(err => {
         setIsLoading(false);

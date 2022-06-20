@@ -12,8 +12,6 @@ import axiosInstance from "./axios/Axios";
 import { toast } from "react-toastify";
 import LoaderWithBackground from "./components/loader/LoaderWithBackground";
 import DashboardPage from "./pages/DashboardPage";
-import { CometChat } from "@cometchat-pro/chat";
-import { initCometChatFun } from "./redux/actions/Actions";
 import Chat from "./pages/Chat";
 
 const App = () => {
@@ -21,10 +19,6 @@ const App = () => {
   const action_Mode = useSelector(state => state.ActionMode.action_Mode);
   const navigator = useNavigate();
   const [isLoading, setLoading] = useState(true);
-  const { cometChat } = useSelector(({ CometChat }) => CometChat);
-  const {
-    userData: { user_detail },
-  } = useSelector(({ UserLogin }) => UserLogin);
 
   // set mode into redux
   useEffect(() => {
@@ -58,43 +52,6 @@ const App = () => {
     setLoading(false);
   }, []);
 
-  /**
-   * init comet chat.
-   */
-  useEffect(() => {
-    const initCometChat = () => {
-      const appID = `${process.env.REACT_APP_COMETCHAT_APP_ID}`;
-      const region = `${process.env.REACT_APP_COMETCHAT_REGION}`;
-      const appSetting = new CometChat.AppSettingsBuilder().subscribePresenceForAllUsers().setRegion(region).build();
-      CometChat.init(appID, appSetting).then(
-        () => {
-          dispatch(initCometChatFun(CometChat));
-        },
-        error => {}
-      );
-    };
-
-    initCometChat();
-  }, []);
-
-  // login user into comitChat
-
-  // useEffect(() => {
-  //   if (cometChat && user_detail) {
-  //     const loginCometChat = async () => {
-  //       const userUid = user_detail.first_name + user_detail.id;
-
-  //       // login cometchat.
-  //       cometChat.login(userUid, `${process.env.REACT_APP_COMETCHAT_AUTH_KEY}`).then(
-  //         User => {},
-  //         error => {}
-  //       );
-  //     };
-  //     loginCometChat();
-  //   }
-  // }, [cometChat, user_detail]);
-
-  // console.log(cometChat);
   return (
     <div className="App">
       <Routes>
