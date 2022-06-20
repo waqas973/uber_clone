@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import React, { useRef, useState } from "react";
+
 import jsonData from "../../data.json";
 
 const AutoCompleteCities = ({

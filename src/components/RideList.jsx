@@ -1,7 +1,7 @@
 import React from "react";
 import { toast } from "react-toastify";
-import axiosInstance from "../../axios/Axios";
-import LoaderWithBackground from "../loader/LoaderWithBackground";
+import axiosInstance from "../axios/Axios";
+import LoaderWithBackground from "./loader/LoaderWithBackground";
 
 const RideList = props => {
   const { rideRequest, setCurrentRide, setRideRequestData } = props;

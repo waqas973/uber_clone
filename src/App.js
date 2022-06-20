@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import Login from "./components/Login/Login";
+import Login from "./components/Login";
 import NewPassword from "./components/NewPassword";
 import ResendEmail from "./components/ResendEmail";
-import Signup from "./components/Signup/Signup";
+import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
 import LandingPage from "./pages/LandingPage";
 import { actionMode, logInUserData } from "./redux/actions/Actions";
@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import LoaderWithBackground from "./components/loader/LoaderWithBackground";
 import DashboardPage from "./pages/DashboardPage";
 import Chat from "./pages/Chat";
+import * as talkSession from "./shared/talk/talk-session";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -34,6 +35,19 @@ const App = () => {
         .get(`${process.env.REACT_APP_PROFILE_URL}`)
         .then(res => {
           dispatch(logInUserData(res.data));
+
+          // create talkjs session
+          let loginUserData = res.data.user_detail;
+          let user = {
+            id: loginUserData.id,
+            username: loginUserData.username,
+            photoUrl: loginUserData.partner_photo ? loginUserData.partner_photo : "",
+            role: "default",
+            welcomeMessage: "Type to chat",
+          };
+
+          // // create a session of user with Talkjs for chatting purpose
+          talkSession.initialize(user);
         })
         .catch(err => {
           if (err.response.data.code === "token_not_valid") {

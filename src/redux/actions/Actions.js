@@ -24,9 +24,3 @@ export const userSelectedLocations = data => {
     payload: data,
   };
 };
-export const initCometChatFun = data => {
-  return {
-    type: "INITIALIZECOMET",
-    payload: data,
-  };
-};

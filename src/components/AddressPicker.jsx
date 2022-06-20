@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
 import axios from "axios";
 import { toast } from "react-toastify";
-import LoaderWithBackground from "../loader/LoaderWithBackground";
+import LoaderWithBackground from "./loader/LoaderWithBackground";
 import { MdGpsFixed } from "react-icons/md";
 import { useSelector } from "react-redux";
-import ubermoto from "../../images/uber-vehicles/Uber_Moto_Orange.webp";
-import uberauto from "../../images/uber-vehicles/uberauto.png";
-import ubermini from "../../images/uber-vehicles/ubermini.webp";
-import jsonData from "../../data.json";
-import axiosInstance from "../../axios/Axios";
+import ubermoto from "../images/uber-vehicles/Uber_Moto_Orange.webp";
+import uberauto from "../images/uber-vehicles/uberauto.png";
+import ubermini from "../images/uber-vehicles/ubermini.webp";
+import jsonData from "../data.json";
+import axiosInstance from "../axios/Axios";
 
 const AddressPicker = props => {
   const [isFrom, setIsFrom] = useState(true);

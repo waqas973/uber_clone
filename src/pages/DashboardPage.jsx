@@ -3,10 +3,10 @@ import Layout from "../components/Layout";
 // import leaflet
 import L from "leaflet";
 import { useSelector } from "react-redux";
-import AddressPicker from "../components/Rider/AddressPicker";
+import AddressPicker from "../components/AddressPicker";
 import { toast, ToastContainer } from "react-toastify";
 import axiosInstance from "../axios/Axios";
-import RideList from "../components/driver/RideList";
+import RideList from "../components/RideList";
 import LoaderWithBackground from "../components/loader/LoaderWithBackground";
 import RideDetail from "../components/RideDetail";
 require("leaflet-routing-machine");
